@@ -1,0 +1,88 @@
+Elements with example:
+    Expression:
+        FunctionCall:
+            func()
+        Definition:
+            Function:
+                def func():
+                    x = 1 + 2
+                    return x
+            Assignment:
+                x = 12
+        Operation:
+            arithmetic:
+                -x
+                2 + x
+                2 * x
+            relational:
+                x <= y
+            logical:
+                not and or
+        Statement:
+            Print:
+                print something
+            If_Then_Else:
+                if something:
+                    something
+                elif something:
+                    something
+                else:
+                    something
+            While:
+                while something:
+                    something
+            Return:
+                return something
+        id:
+            var_1
+            car3
+        lit:
+            "str_a"
+            'a'
+            123
+            -9
+
+
+Program := ExpList
+ExpList := Expression '\n' ExpList | empty
+
+Expression := FunctionCall | Definition | Operation | Statement | id | lit
+
+FunctionCall := tabs id '(' ArgList ')'
+Definition := Function | Assignment
+Operation := Arithmetic | Relational | Logical
+Statement := Print | If_Then_Else | While | Return | Break
+
+TAB := '\t'
+tabs := TAB* | empty
+id := tabs #{[:alpha:]+[[:alnum:]_]*}
+lit := tabs | string | char | integer | bool
+
+Return := tabs 'return' Argument
+Break := tabs 'break'
+
+Argument := id | lit
+ArgList := Argument ',' ArgList | empty
+IDList := id ',' IDList | empty
+
+Function := tabs 'def' id '(' IDList ')' ':' '\n' FunctionBody
+
+FunctionBody := ExpList Return
+
+Assignment := tabs id '=' [lit | Operation]
+
+Arithmetic := tabs [[id | integer] '+' integer | [id | integer] '-' integer | [id | integer] '*' integer | [id | integer] '/' integer]
+
+Relational := tabs [[id | integer] '>' [id | integer] | [id | integer] '>=' [id | integer] | [id | integer] '<' [id | integer] | [id | integer] '<=' [id | integer] | [id | integer] '==' [id | integer]]
+
+Logical := tabs [[TruthArg 'and' TruthArg] | [TruthArg 'or' TruthArg] | 'not' TruthArg]
+
+TruthArg := id | bool | Relational
+
+Print := tabs 'print' string
+
+If_Then_Else := tabs 'if' [TruthArg | Logical] ':' '\n' ExpList(l + 1) ElifList tabs ['else' [TruthArg | Logical] ':' '\n' ExpList(l + 1) | empty]
+
+ElifList := tabs 'elif' [TruthArg | Logical] ':' '\n' ExpList(l + 1) ElifList | empty
+
+While := tabs while [TruthArg | Logical] ':' '\n' ExpList(l + 1)
